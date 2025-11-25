@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { pool } from "../db.js";
-import linksRouter from "../routes/links.js";
+import { pool } from "./db.js";
+import linksRouter from "./routes/links.js";
 
 dotenv.config();
 
