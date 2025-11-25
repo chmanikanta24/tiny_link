@@ -61,7 +61,7 @@
     </div>
 
     <script>
-      const API = "https://tiny-link-1-p2a7.onrender.com"; // change when deployed
+      const API = "https://tiny-link-1-p2a7.onrender.com/api/links";
 
       async function loadLinks() {
         const res = await fetch(API);
@@ -72,16 +72,16 @@
 
         data.forEach((row) => {
           table.innerHTML += `
-          <tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="goStats('${row.code}')">
-            <td class="p-2 font-bold">${row.code}</td>
-            <td class="p-2 truncate">${row.target_url}</td>
-            <td class="p-2">${row.clicks}</td>
-            <td class="p-2">
-              <button onclick="event.stopPropagation(); delCode('${row.code}')"
-                class="text-red-600 font-bold">X</button>
-            </td>
-          </tr>
-        `;
+        <tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="goStats('${row.code}')">
+          <td class="p-2 font-bold">${row.code}</td>
+          <td class="p-2 truncate">${row.target_url}</td>
+          <td class="p-2">${row.clicks}</td>
+          <td class="p-2">
+            <button onclick="event.stopPropagation(); delCode('${row.code}')"
+              class="text-red-600 font-bold">X</button>
+          </td>
+        </tr>
+      `;
         });
       }
 
