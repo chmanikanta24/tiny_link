@@ -1,47 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stats</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stats</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
 
-<body class="bg-gray-100 text-gray-900">
-  <div class="max-w-xl mx-auto py-10">
+  <body class="bg-gray-100 text-gray-900">
+    <div class="max-w-xl mx-auto py-10">
+      <button onclick="history.back()" class="text-blue-600 underline mb-4">
+        &larr; Back
+      </button>
 
-    <button onclick="history.back()"
-      class="text-blue-600 underline mb-4">&larr; Back</button>
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h1 class="text-2xl font-bold mb-4">Link Stats</h1>
 
-    <div class="bg-white p-6 rounded-xl shadow">
-      <h1 class="text-2xl font-bold mb-4">Link Stats</h1>
-
-      <p id="code" class="text-lg font-semibold"></p>
-      <p id="url" class="truncate text-blue-600"></p>
-      <p id="clicks" class="mt-4"></p>
-      <p id="last" class="mt-2 text-gray-600"></p>
+        <p id="code" class="text-lg font-semibold"></p>
+        <p id="url" class="truncate text-blue-600"></p>
+        <p id="clicks" class="mt-4"></p>
+        <p id="last" class="mt-2 text-gray-600"></p>
+      </div>
     </div>
-  </div>
 
-  <script>
-    const API = "http://localhost:5000/api/links"; // change later
+    <script>
+      const API = "https://tiny-link-1-p2a7.onrender.com"; // change later
 
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
 
-    document.getElementById("code").innerHTML = "Short code: " + code;
+      document.getElementById("code").innerHTML = "Short code: " + code;
 
-    async function loadStats() {
-      const res = await fetch(`${API}/${code}`);
-      const data = await res.json();
+      async function loadStats() {
+        const res = await fetch(`${API}/${code}`);
+        const data = await res.json();
 
-      document.getElementById("url").innerHTML = "URL: " + data.target_url;
-      document.getElementById("clicks").innerHTML = "Total Clicks: " + data.clicks;
-      document.getElementById("last").innerHTML =
-        "Last Clicked: " + (data.last_clicked ?? "Never");
-    }
+        document.getElementById("url").innerHTML = "URL: " + data.target_url;
+        document.getElementById("clicks").innerHTML =
+          "Total Clicks: " + data.clicks;
+        document.getElementById("last").innerHTML =
+          "Last Clicked: " + (data.last_clicked ?? "Never");
+      }
 
-    loadStats();
-  </script>
-</body>
+      loadStats();
+    </script>
+  </body>
 </html>
