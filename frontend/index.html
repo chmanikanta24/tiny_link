@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TinyLink Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+  <div class="max-w-3xl mx-auto py-10">
+
+    <h1 class="text-3xl font-bold mb-6 text-center">TinyLink Dashboard</h1>
+
+    <!-- Add Link Form -->
+    <div class="bg-white p-6 rounded-xl shadow mb-8">
+      <h2 class="text-xl font-semibold mb-3">Create Short Link</h2>
+
+      <form id="addForm" class="space-y-3">
+        <input id="url" type="text" placeholder="Enter long URL"
+          class="w-full border p-3 rounded" required />
+
+        <input id="code" type="text" placeholder="Enter custom code (6–8 chars)"
+          class="w-full border p-3 rounded" required />
+
+        <button
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">Create</button>
+      </form>
+
+      <p id="msg" class="mt-3 text-center font-semibold"></p>
+    </div>
+
+    <!-- Links Table -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-xl font-semibold mb-3">Your Short Links</h2>
+
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b">
+            <th class="p-2">Code</th>
+            <th class="p-2">URL</th>
+            <th class="p-2">Clicks</th>
+            <th class="p-2">Delete</th>
+          </tr>
+        </thead>
+        <tbody id="table"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    const API = "http://localhost:5000/api/links"; // change when deployed
+
+    async function loadLinks() {
+      const res = await fetch(API);
+      const data = await res.json();
+
+      const table = document.getElementById("table");
+      table.innerHTML = "";
+
+      data.forEach(row => {
+        table.innerHTML += `
+          <tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="goStats('${row.code}')">
+            <td class="p-2 font-bold">${row.code}</td>
+            <td class="p-2 truncate">${row.target_url}</td>
+            <td class="p-2">${row.clicks}</td>
+            <td class="p-2">
+              <button onclick="event.stopPropagation(); delCode('${row.code}')"
+                class="text-red-600 font-bold">X</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    async function delCode(code) {
+      await fetch(`${API}/${code}`, { method: "DELETE" });
+      loadLinks();
+    }
+
+    function goStats(code) {
+      window.location.href = `/stats.html?code=${code}`;
+    }
+
+    document.getElementById("addForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const target_url = document.getElementById("url").value;
+      const code = document.getElementById("code").value;
+
+      const res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target_url, code })
+      });
+
+      const msg = document.getElementById("msg");
+
+      if (res.status === 409) {
+        msg.innerHTML = "Code already exists";
+        msg.className = "text-red-600";
+      } else if (res.status === 400) {
+        msg.innerHTML = "Invalid input";
+        msg.className = "text-red-600";
+      } else {
+        msg.innerHTML = "Link created!";
+        msg.className = "text-green-600";
+        document.getElementById("addForm").reset();
+        loadLinks();
+      }
+    });
+
+    loadLinks();
+  </script>
+</body>
+</html>
