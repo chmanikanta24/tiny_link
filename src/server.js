@@ -1,28 +1,38 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import { pool } from "./db.js";
 import linksRouter from "./routes/links.js";
 
 dotenv.config();
 
+// Fix __dirname in ES Module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Health check route (required by assignment)
+// 1️⃣ Serve Frontend Files
+app.use(express.static(path.join(__dirname, "../public")));
+
+// 2️⃣ Health Check
 app.get("/healthz", (req, res) => {
   res.json({ ok: true, version: "1.0" });
 });
 
-// API routes
+// 3️⃣ API Routes
 app.use("/api/links", linksRouter);
 
-/*-------------------------------------------------
-  REDIRECT ROUTE
-  GET /:code → Redirect to original URL
---------------------------------------------------*/
+// 4️⃣ Stats Page Route  (serve stats.html)
+app.get("/code/:code", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/stats.html"));
+});
 
+// 5️⃣ Redirect Route (MUST be last)
 app.get("/:code", async (req, res) => {
   const { code } = req.params;
 
@@ -38,7 +48,6 @@ app.get("/:code", async (req, res) => {
 
     const target = result.rows[0].target_url;
 
-    // Update click stats
     await pool.query(
       "UPDATE links SET clicks = clicks + 1, last_clicked = NOW() WHERE code=$1",
       [code]
@@ -52,7 +61,6 @@ app.get("/:code", async (req, res) => {
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`Server Running on PORT ${PORT}`);
 });
